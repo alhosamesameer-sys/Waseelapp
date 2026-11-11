@@ -10,10 +10,13 @@ data class CallEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val cal
 data class ConversationEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val callId: Long, val createdAt: Long)
 
 @Entity(tableName = "messages")
-data class MessageEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val conversationId: Long, val speaker: String, val text: String, val timestamp: Long)
+data class MessageEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val conversationId: Long, val speaker: String, val text: String, val timestamp: Long, val audioStartMillis: Long? = null, val audioEndMillis: Long? = null)
 
 @Entity(tableName = "call_summaries")
 data class CallSummaryEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val callId: Long, val summary: String, val priority: String, val editedAt: Long)
+
+@Entity(tableName = "call_recordings")
+data class CallRecordingEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val callId: Long, val encryptedFilePath: String, val mimeType: String = "application/x-waseel-encrypted-pcm", val sampleRate: Int, val channels: Int, val durationMillis: Long, val consentedAt: Long, val routeKind: String)
 
 @Entity(tableName = "contacts")
 data class ContactEntity(@PrimaryKey val phoneNumber: String, val displayName: String, val allowed: Boolean = true)
@@ -22,7 +25,7 @@ data class ContactEntity(@PrimaryKey val phoneNumber: String, val displayName: S
 data class AssistantRuleEntity(@PrimaryKey val ruleId: String, val priority: Int, val phrasesJson: String, val response: String, val enabled: Boolean = true)
 
 @Entity(tableName = "assistant_settings")
-data class AssistantSettingsEntity(@PrimaryKey val id: Int = 1, val enabled: Boolean = false, val retentionDays: Int = 30, val transcriptEnabled: Boolean = true)
+data class AssistantSettingsEntity(@PrimaryKey val id: Int = 1, val enabled: Boolean = false, val retentionDays: Int = 30, val transcriptEnabled: Boolean = true, val audioRecordingEnabled: Boolean = false)
 
 @Entity(tableName = "follow_up_tasks")
 data class FollowUpTaskEntity(@PrimaryKey(autoGenerate = true) val id: Long = 0, val callId: Long, val title: String, val description: String, val dueAt: Long?, val priority: String, val status: String = "pending")
