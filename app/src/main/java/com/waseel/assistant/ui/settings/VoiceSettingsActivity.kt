@@ -52,8 +52,8 @@ class VoiceSettingsActivity : AppCompatActivity() {
         status = panel(root, "جارٍ فحص الأصوات العربية المحلية...")
         addText(root, "نوع الصوت", 17, true)
         val voiceChoices = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        val maleButton = MaterialButton(this).apply { text = "صوت ذكر" }
-        val femaleButton = MaterialButton(this).apply { text = "صوت أنثى" }
+        val maleButton = MaterialButton(this).apply { text = "طبقة أقرب للذكر" }
+        val femaleButton = MaterialButton(this).apply { text = "طبقة أقرب للأنثى" }
         voiceChoices.addView(maleButton, LinearLayout.LayoutParams(0, dp(52), 1f))
         voiceChoices.addView(femaleButton, LinearLayout.LayoutParams(0, dp(52), 1f))
         root.addView(voiceChoices)
