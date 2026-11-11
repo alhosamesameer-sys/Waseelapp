@@ -23,6 +23,10 @@
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="إعدادات وصيل والردود والتعليمات" android:layout_marginTop="10dp"
             app:icon="@android:drawable/ic_menu_preferences" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnFeatures"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="جميع أدوات وصيل" android:layout_marginTop="8dp"
+            app:icon="@android:drawable/ic_menu_view" />
         <com.google.android.material.button.MaterialButton android:id="@+id/btnPermissions"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent" android:layout_height="wrap_content"
