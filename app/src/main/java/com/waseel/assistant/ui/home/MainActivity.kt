@@ -61,10 +61,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeDashboardStats() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
-            binding.tvCallsToday.text = "مكالمات اليوم\\nغير متاح"
-            binding.tvCallsWeek.text = "هذا الأسبوع\\nغير متاح"
-            binding.tvCallsMonth.text = "هذا الشهر\\nغير متاح"
-            binding.tvCallsTotal.text = "إجمالي المكالمات\\nغير متاح"
+            binding.tvCallsToday.text = "مكالمات اليوم\nغير متاح"
+            binding.tvCallsWeek.text = "هذا الأسبوع\nغير متاح"
+            binding.tvCallsMonth.text = "هذا الشهر\nغير متاح"
+            binding.tvCallsTotal.text = "إجمالي المكالمات\nغير متاح"
             return
         }
         val now = System.currentTimeMillis()
@@ -78,10 +78,10 @@ class MainActivity : AppCompatActivity() {
             val args = if (from == null) null else arrayOf(from.toString())
             contentResolver.query(CallLog.Calls.CONTENT_URI, arrayOf(CallLog.Calls._ID), selection, args, null)?.use { it.count } ?: 0
         } catch (_: SecurityException) { -1 }
-        binding.tvCallsToday.text = "مكالمات اليوم\\n${countCalls(today).let { if (it < 0) "غير متاح" else it }}"
-        binding.tvCallsWeek.text = "هذا الأسبوع\\n${countCalls(week).let { if (it < 0) "غير متاح" else it }}"
-        binding.tvCallsMonth.text = "هذا الشهر\\n${countCalls(month).let { if (it < 0) "غير متاح" else it }}"
-        binding.tvCallsTotal.text = "إجمالي المكالمات\\n${countCalls(null).let { if (it < 0) "غير متاح" else it }}"
+        binding.tvCallsToday.text = "مكالمات اليوم\n${countCalls(today).let { if (it < 0) "غير متاح" else it }}"
+        binding.tvCallsWeek.text = "هذا الأسبوع\n${countCalls(week).let { if (it < 0) "غير متاح" else it }}"
+        binding.tvCallsMonth.text = "هذا الشهر\n${countCalls(month).let { if (it < 0) "غير متاح" else it }}"
+        binding.tvCallsTotal.text = "إجمالي المكالمات\n${countCalls(null).let { if (it < 0) "غير متاح" else it }}"
     }
 
     override fun onResume() { super.onResume(); if (::binding.isInitialized) observeDashboardStats() }
