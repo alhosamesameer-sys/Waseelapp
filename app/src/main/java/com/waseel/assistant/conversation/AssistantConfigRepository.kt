@@ -24,6 +24,14 @@ class AssistantConfigRepository(private val context: Context) {
         modes?.put("auto_answer_default", prefs.getBoolean("auto_answer", false))
 
         val intents = config.optJSONObject("intents") ?: JSONObject().also { config.put("intents", it) }
+        val customName = prefs.getString("assistant_name", "وصيل").orEmpty()
+        val intentKeys = intents.keys().asSequence().toList()
+        intentKeys.forEach { key ->
+            val item = intents.optJSONObject(key) ?: return@forEach
+            val response = item.optString("response")
+            if (response.isNotEmpty()) item.put("response", response.replace("وصيل", customName))
+        }
+
         val faqText = prefs.getString("faq", "").orEmpty()
         faqText.lineSequence().forEachIndexed { index, line ->
             val parts = line.split("|", limit = 2)
