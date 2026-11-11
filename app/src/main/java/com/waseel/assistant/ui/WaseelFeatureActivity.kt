@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
@@ -30,6 +31,23 @@ class WaseelFeatureActivity : AppCompatActivity() {
     private val prefs by lazy { getSharedPreferences("waseel_feature_data", MODE_PRIVATE) }
     private lateinit var root: LinearLayout
     private val db by lazy { WaseelDatabase.get(this) }
+
+    private val backupCreator = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) runCatching {
+            contentResolver.openOutputStream(uri)?.bufferedWriter(Charsets.UTF_8)?.use { it.write(buildBackup().toString(2)) }
+                ?: error("تعذر إنشاء ملف النسخة.")
+            Toast.makeText(this, "تم تصدير النسخة الاحتياطية", Toast.LENGTH_LONG).show()
+        }.onFailure { Toast.makeText(this, it.message ?: "فشل التصدير", Toast.LENGTH_LONG).show() }
+    }
+
+    private val backupPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) runCatching {
+            val payload = contentResolver.openInputStream(uri)?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }
+                ?: error("تعذر قراءة ملف النسخة.")
+            restoreBackup(JSONObject(payload))
+            Toast.makeText(this, "تم استيراد الإعدادات والردود. أعد فتح الشاشات لتحديثها.", Toast.LENGTH_LONG).show()
+        }.onFailure { Toast.makeText(this, "لم يتم استيراد النسخة: ${it.message}", Toast.LENGTH_LONG).show() }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -231,18 +249,52 @@ class WaseelFeatureActivity : AppCompatActivity() {
     }
 
     private fun showBackup() {
-        header("النسخ الاحتياطي", "أنشئ ملف JSON محلياً يحتوي على إعدادات الردود والقوائم والتفضيلات.")
-        val export = actionButton("تصدير نسخة احتياطية")
+        header("النسخ الاحتياطي والاستعادة", "احفظ إعدادات وصيل والردود والقوائم في ملف JSON، ويمكنك استعادتها لاحقاً.")
+        val export = actionButton("تصدير نسخة احتياطية إلى ملف")
         root.addView(export, match())
-        export.setOnClickListener {
-            val payload = JSONObject()
-                .put("quick_replies", readReplies())
-                .put("assistant_settings", JSONObject(getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE).all.mapValues { it.value }))
-                .put("feature_settings", JSONObject(prefs.all.mapValues { it.value }))
-            val share = Intent(Intent.ACTION_SEND).apply { type = "application/json"; putExtra(Intent.EXTRA_TEXT, payload.toString(2)) }
-            startActivity(Intent.createChooser(share, "حفظ أو مشاركة نسخة وصيل"))
+        export.setOnClickListener { backupCreator.launch("waseel-backup.json") }
+        val restore = actionButton("استعادة نسخة من ملف")
+        root.addView(restore, match())
+        restore.setOnClickListener { backupPicker.launch(arrayOf("application/json", "text/json")) }
+        panel("تستعيد الأداة إعدادات المساعد والردود الجاهزة وقوائم الأرقام والتفضيلات. لا تتضمن النسخة تسجيلات صوتية أو بيانات سجل الهاتف.")
+    }
+
+    private fun buildBackup(): JSONObject = JSONObject()
+        .put("format", "waseel-local-backup")
+        .put("version", 1)
+        .put("created_at", System.currentTimeMillis())
+        .put("quick_replies", readReplies())
+        .put("assistant_settings", JSONObject(getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE).all.mapValues { it.value }))
+        .put("feature_settings", JSONObject(prefs.all.mapValues { it.value }))
+
+    private fun restoreBackup(payload: JSONObject) {
+        require(payload.optString("format") == "waseel-local-backup") { "صيغة الملف ليست نسخة وصيل." }
+        require(payload.optInt("version") == 1) { "إصدار النسخة غير مدعوم." }
+        val replies = payload.optJSONArray("quick_replies") ?: JSONArray()
+        val assistant = payload.optJSONObject("assistant_settings") ?: JSONObject()
+        val feature = payload.optJSONObject("feature_settings") ?: JSONObject()
+        val assistantPrefs = getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE).edit().clear()
+        val featurePrefs = prefs.edit().clear()
+        copyJsonPreferences(assistant, assistantPrefs)
+        copyJsonPreferences(feature, featurePrefs)
+        assistantPrefs.apply()
+        featurePrefs.putString("quick_replies", replies.toString()).apply()
+    }
+
+    private fun copyJsonPreferences(source: JSONObject, target: android.content.SharedPreferences.Editor) {
+        val allowed = setOf("assistant_name", "intro", "greeting", "unknown_reply", "faq", "instructions", "answer_delay", "auto_answer", "custom_config_json", "transcript", "audio", "hours_enabled", "hours_start", "hours_end", "allowed_numbers", "excluded_numbers")
+        val keys = source.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            if (key !in allowed) continue
+            when (val value = source.opt(key)) {
+                is Boolean -> target.putBoolean(key, value)
+                is Int -> target.putInt(key, value)
+                is Long -> target.putLong(key, value)
+                is Double -> target.putFloat(key, value.toFloat())
+                is String -> target.putString(key, value)
+            }
         }
-        panel("الاستعادة من ملف خارجي لم تُفعّل بعد؛ لن أسمح باستيراد إعدادات غير متحقق منها.")
     }
 
     private fun showDiagnostics() {
