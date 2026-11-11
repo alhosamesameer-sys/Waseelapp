@@ -305,37 +305,40 @@
     "never_execute_code_from_json": true
   },
   "call_audio_routes": {
-    "strategy": "both",
+    "strategy": "sim_only_no_forwarding",
     "direct_sim": {
       "enabled": true,
-      "implementation_status": "unsupported_by_public_android_call_audio_api",
-      "must_verify_runtime": true,
-      "never_claim_audio_access_from_incallservice": true
+      "carrier": "stc",
+      "device_validation_required": true,
+      "telecom_call_control_only_until_duplex_audio_is_proven": true,
+      "audio_status": "not_available_via_public_android_api"
     },
     "sip_pbx": {
-      "enabled": true,
-      "implementation_status": "adapter_contract_only_no_sip_stack_configured",
-      "requires_user_supplied_compatible_sip_provider": true,
-      "local_ai_processing": true,
-      "cloud_ai": false
+      "enabled": false,
+      "reason": "User has no SIP/PBX account and declined call forwarding."
+    },
+    "call_forwarding": {
+      "enabled": false,
+      "user_opt_in": false
     },
     "fail_closed": true,
-    "no_fallback_to_microphone_loopback": true
+    "no_microphone_loopback": true,
+    "no_cloud_fallback": true
   },
   "recording": {
     "enabled_by_default": false,
-    "capture_mode": "both_sides_only_from_verified_duplex_route",
+    "requested_mode": "audio_and_transcript",
     "save_audio": true,
     "save_transcript": true,
     "save_assistant_replies": true,
     "require_caller_notice": true,
     "require_caller_consent": true,
     "require_owner_opt_in": true,
-    "stop_if_consent_missing": true,
     "encrypt_audio_at_rest": true,
     "retention_days": 30,
-    "format": "encrypted_pcm16_frames",
-    "note": "لا يتم تسجيل صوت المكالمة ما لم يوفر مسار موثوق صوت الطرفين ويثبت موافقة الطرفين."
+    "activation_condition": "verified_duplex_call_audio_route_and_required_consents",
+    "if_unavailable": "save_no_fake_recording_and_show_unavailable_status",
+    "note": "المستخدم يريد الصوت والنص معاً، لكن لا يبدأ التسجيل الصوتي حتى يتوفر مصدر موثوق لصوت الطرفين وموافقات التسجيل."
   },
   "transcript": {
     "enabled": true,
