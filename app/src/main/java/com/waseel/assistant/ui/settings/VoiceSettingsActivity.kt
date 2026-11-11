@@ -1,6 +1,5 @@
 package com.waseel.assistant.ui.settings
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.ViewGroup
@@ -12,7 +11,6 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.waseel.assistant.speech.OfflineTextToSpeech
 import com.waseel.assistant.speech.VoiceSampleStore
-import android.speech.tts.Voice
 
 class VoiceSettingsActivity : AppCompatActivity() {
     private val prefs by lazy { getSharedPreferences("waseel_voice_settings", MODE_PRIVATE) }
