@@ -24,8 +24,6 @@ class VoiceSettingsActivity : AppCompatActivity() {
     private lateinit var rateLabel: TextView
     private lateinit var rateSlider: SeekBar
     private var selectedVoiceName: String? = null
-    private var maleVoices: List<Voice> = emptyList()
-    private var femaleVoices: List<Voice> = emptyList()
 
     private val samplePicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@registerForActivityResult
@@ -61,8 +59,8 @@ class VoiceSettingsActivity : AppCompatActivity() {
         voiceChoices.addView(maleButton, LinearLayout.LayoutParams(0, dp(52), 1f))
         voiceChoices.addView(femaleButton, LinearLayout.LayoutParams(0, dp(52), 1f))
         root.addView(voiceChoices)
-        maleButton.setOnClickListener { chooseGender(maleVoices, "ذكر") }
-        femaleButton.setOnClickListener { chooseGender(femaleVoices, "أنثى") }
+        maleButton.setOnClickListener { chooseGenderPreset("ذكر", 0.90f) }
+        femaleButton.setOnClickListener { chooseGenderPreset("أنثى", 1.10f) }
 
         addText(root, "سرعة الكلام", 17, true)
         rateLabel = addText(root, "", 14, false)
@@ -89,10 +87,10 @@ class VoiceSettingsActivity : AppCompatActivity() {
             setBackgroundColor(0xFF10264B.toInt())
         }
         root.addView(textInput, match())
-        val preview = MaterialButton(this).apply { text = "استمع إلى الصوت" }
+        val listVoices = MaterialButton(this).apply { text = "عرض الأصوات العربية المثبتة" }\n        root.addView(listVoices, match())\n        listVoices.setOnClickListener { showAvailableVoices() }\n        val preview = MaterialButton(this).apply { text = "استمع إلى الصوت" }
         root.addView(preview, match())
         preview.setOnClickListener {
-            val ok = speech.speak(textInput.text.toString(), speechRate())
+            speech.setPitch(prefs.getFloat("voice_pitch", 1.0f))\n            val ok = speech.speak(textInput.text.toString(), speechRate())
             if (!ok) status.text = "الصوت المحلي غير جاهز أو لا توجد عينة نطق متاحة."
         }
 
@@ -114,38 +112,41 @@ class VoiceSettingsActivity : AppCompatActivity() {
             runOnUiThread {
                 status.text = message
                 if (ready) {
-                    maleVoices = speech.availableLocalArabicVoices().filter { it.gender == Voice.GENDER_MALE }
-                    femaleVoices = speech.availableLocalArabicVoices().filter { it.gender == Voice.GENDER_FEMALE }
                     val saved = prefs.getString("selected_voice_name", null)
                     if (saved != null && speech.selectVoice(saved)) selectedVoiceName = saved
                     else if (speech.availableLocalArabicVoices().isNotEmpty()) {
                         selectedVoiceName = speech.availableLocalArabicVoices().first().name
                         speech.selectVoice(selectedVoiceName!!)
                     }
-                    status.text = "$message\nأصوات الذكور: ${maleVoices.size} — أصوات الإناث: ${femaleVoices.size}"
+                    status.text = "$message\nيمكن ضبط طبقة الصوت إلى منخفضة أو مرتفعة. Android لا يعرّف جنس كل صوت بشكل موثوق."
                 }
             }
         }
     }
 
-    private fun chooseGender(voices: List<Voice>, label: String) {
+    private fun chooseGenderPreset(label: String, pitch: Float) {
+        prefs.edit().putString("voice_presentation", label).putFloat("voice_pitch", pitch).apply()
+        speech.setPitch(pitch)
+        status.text = "تم اختيار طبقة صوت $label. هذا تعديل تقريبي لطبقة الصوت وليس ضماناً لصوت ذكر أو أنثى حقيقي؛ ذلك يعتمد على الأصوات المثبتة."
+    }
+
+    private fun showAvailableVoices() {
+        val voices = speech.availableLocalArabicVoices()
         if (voices.isEmpty()) {
-            status.text = "لم يعرض محرك الهاتف صوتاً محلياً مصنفاً كصوت $label. لن أضع اسماً غير مؤكد."
+            status.text = "لا توجد أصوات عربية محلية متاحة."
             return
         }
         val names = voices.map { it.name }.toTypedArray()
-        val current = voices.indexOfFirst { it.name == selectedVoiceName }.coerceAtLeast(0)
         android.app.AlertDialog.Builder(this)
-            .setTitle("اختر صوت $label")
-            .setSingleChoiceItems(names, current) { dialog, which ->
+            .setTitle("الأصوات العربية المحلية")
+            .setItems(names) { _, which ->
                 val voice = voices[which]
                 if (speech.selectVoice(voice.name)) {
                     selectedVoiceName = voice.name
-                    prefs.edit().putString("selected_voice_name", voice.name).putString("selected_voice_gender", label).apply()
-                    status.text = "تم اختيار صوت $label المحلي: ${voice.name}"
+                    prefs.edit().putString("selected_voice_name", voice.name).apply()
+                    status.text = "تم اختيار الصوت المحلي: ${voice.name}"
                 }
-                dialog.dismiss()
-            }.setNegativeButton("إلغاء", null).show()
+            }.show()
     }
 
     private fun speechRate(): Float = (0.75f + rateSlider.progress * 0.05f).coerceIn(0.75f, 1.25f)
