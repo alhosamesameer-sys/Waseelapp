@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Waseel" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/waseel_blue</item>
+        <item name="colorSecondary">@color/waseel_cyan</item>
+        <item name="android:statusBarColor">@color/waseel_navy</item>
+        <item name="android:navigationBarColor">@color/waseel_navy</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:fontFamily">sans</item>
+    </style>
+</resources>
