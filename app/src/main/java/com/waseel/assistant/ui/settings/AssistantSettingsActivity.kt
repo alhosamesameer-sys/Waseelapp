@@ -37,7 +37,7 @@ class AssistantSettingsActivity : AppCompatActivity() {
         val scroll = ScrollView(this).apply { addView(root) }
         setContentView(scroll)
         addText(root, "إعدادات وصيل", 26, true)
-        val voiceButton = MaterialButton(this).apply { text = "إعدادات الصوت وتجربة النطق" }
+        val voiceButton = MaterialButton(this).apply { text = "♫  إعدادات الصوت وتجربة النطق"; isAllCaps = false; cornerRadius = (16 * resources.displayMetrics.density).toInt() }
         root.addView(voiceButton, match())
         voiceButton.setOnClickListener { startActivity(Intent(this, VoiceSettingsActivity::class.java)) }
         addText(root, "عدّل شخصية المساعد والردود والتعليمات. تُحفظ الإعدادات على هذا الهاتف فقط.", 14, false)
@@ -65,13 +65,13 @@ class AssistantSettingsActivity : AppCompatActivity() {
         }
         root.addView(autoAnswer, match())
         addText(root, "تنبيه: اختيار الرد التلقائي يحفظ تفضيلك فقط. لن يستطيع التطبيق الرد على مكالمات SIM تلقائياً ما لم يسمح Android/الشركة المصنّعة بذلك. كما أن تأخير الرنين لا يضمن توفر صوت الطرفين.", 13, false)
-        val test = MaterialButton(this).apply { text = "اختبار ردود وصيل محلياً" }
+        val test = MaterialButton(this).apply { text = "اختبار ردود وصيل محلياً"; isAllCaps = false; cornerRadius = (16 * resources.displayMetrics.density).toInt() }
         root.addView(test, match())
         test.setOnClickListener { testLocalReply() }
-        val save = MaterialButton(this).apply { text = "حفظ الإعدادات" }
+        val save = MaterialButton(this).apply { text = "حفظ الإعدادات"; isAllCaps = false; cornerRadius = (16 * resources.displayMetrics.density).toInt() }
         root.addView(save, match())
         save.setOnClickListener { saveSettings() }
-        val reset = MaterialButton(this).apply { text = "استعادة الإعدادات الافتراضية" }
+        val reset = MaterialButton(this).apply { text = "استعادة الإعدادات الافتراضية"; isAllCaps = false; cornerRadius = (16 * resources.displayMetrics.density).toInt() }
         root.addView(reset, match())
         reset.setOnClickListener {
             prefs.edit().clear().apply()
@@ -138,7 +138,11 @@ class AssistantSettingsActivity : AppCompatActivity() {
             setTextColor(android.graphics.Color.WHITE)
             setHintTextColor(android.graphics.Color.LTGRAY)
             setPadding(14)
-            setBackgroundColor(android.graphics.Color.rgb(20, 43, 78))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(0xFF10264B.toInt())
+                setStroke((resources.displayMetrics.density).toInt().coerceAtLeast(1), 0xFF29466D.toInt())
+                cornerRadius = 16f * resources.displayMetrics.density
+            }
             if (multiline) { minLines = 3; gravity = android.view.Gravity.TOP; inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE }
         }
         parent.addView(edit, match())
@@ -154,5 +158,7 @@ class AssistantSettingsActivity : AppCompatActivity() {
         parent.addView(t, match())
         return t
     }
-    private fun match() = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+    private fun match() = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+        bottomMargin = (8 * resources.displayMetrics.density).toInt()
+    }
 }
