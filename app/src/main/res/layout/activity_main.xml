@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="@color/waseel_navy" android:fillViewport="true">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -17,15 +18,24 @@
         <com.google.android.material.button.MaterialButton android:id="@+id/btnToggleAssistant"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="تشغيل المساعد" android:layout_marginTop="12dp" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnSettings"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="إعدادات وصيل والردود والتعليمات" android:layout_marginTop="10dp"
+            app:icon="@android:drawable/ic_menu_preferences" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnPermissions"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="مراجعة صلاحيات الهاتف" android:layout_marginTop="4dp" />
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="نظرة عامة" android:textColor="@color/waseel_text"
             android:textSize="20sp" android:textStyle="bold" android:layout_marginTop="24dp" />
         <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:columnCount="2" android:useDefaultMargins="true">
-            <TextView android:id="@+id/tvCallsToday" style="@style/WaseelStat" android:text="مكالمات اليوم\n—" />
-            <TextView android:id="@+id/tvCallsWeek" style="@style/WaseelStat" android:text="هذا الأسبوع\n—" />
-            <TextView android:id="@+id/tvCallsMonth" style="@style/WaseelStat" android:text="هذا الشهر\n—" />
-            <TextView android:id="@+id/tvCallsTotal" style="@style/WaseelStat" android:text="إجمالي المكالمات\n—" />
+            <TextView android:id="@+id/tvCallsToday" style="@style/WaseelStat" android:text="مكالمات اليوم&#10;—" />
+            <TextView android:id="@+id/tvCallsWeek" style="@style/WaseelStat" android:text="هذا الأسبوع&#10;—" />
+            <TextView android:id="@+id/tvCallsMonth" style="@style/WaseelStat" android:text="هذا الشهر&#10;—" />
+            <TextView android:id="@+id/tvCallsTotal" style="@style/WaseelStat" android:text="إجمالي المكالمات&#10;—" />
         </GridLayout>
         <TextView android:id="@+id/tvEngineStatus" android:layout_width="match_parent"
             android:layout_height="wrap_content" android:background="@drawable/bg_panel"
