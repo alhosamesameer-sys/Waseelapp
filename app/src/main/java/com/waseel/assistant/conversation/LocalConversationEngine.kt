@@ -14,25 +14,22 @@ class LocalConversationEngine(private val config: JSONObject) {
             .replace(Regex("[^\\p{L}\\p{N}\\s]"), " ")
             .replace(Regex("\\s+"), " ").trim()
     }
-
     fun reply(input: String): EngineReply {
         val text = normalizeArabic(input)
         val intents = config.optJSONObject("intents") ?: JSONObject()
-        val keys = intents.keys().asSequence().toList()
-        for (id in keys) {
-            val item = intents.optJSONObject(id) ?: continue
+        val ordered = intents.keys().asSequence()
+            .mapNotNull { id -> intents.optJSONObject(id)?.let { id to it } }
+            .sortedByDescending { (_, item) -> item.optInt("priority", 0) }
+        for ((id, item) in ordered) {
             val phrases = item.optJSONArray("phrases") ?: continue
             var hits = 0
             for (i in 0 until phrases.length()) {
                 val phrase = normalizeArabic(phrases.optString(i))
-                if (phrase.isNotBlank() && text.contains(phrase)) hits++
+                if (phrase.isNotBlank() && (text == phrase || text.contains(phrase))) hits++
             }
-            if (hits > 0) {
-                val response = item.optString("response", "")
-                return EngineReply(id, response, (0.72 + hits * 0.05).coerceAtMost(0.98))
-            }
+            if (hits > 0) return EngineReply(id, item.optString("response", ""), (0.72 + hits * 0.05).coerceAtMost(0.98))
         }
-        val fallback = config.optJSONObject("intents")?.optJSONObject("unknown")?.optString("response")
+        val fallback = intents.optJSONObject("unknown")?.optString("response")
             ?: config.optJSONObject("fallbacks")?.optString("unknown")
             ?: "أعتذر منك، ممكن توضح لي طلبك؟"
         return EngineReply("unknown", fallback, 0.0)
