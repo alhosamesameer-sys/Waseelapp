@@ -10,6 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.waseel.assistant.databinding.ActivityMainBinding
 import com.waseel.assistant.ui.settings.AssistantSettingsActivity
+import com.waseel.assistant.ui.WaseelFeatureActivity
+import com.waseel.assistant.database.WaseelDatabase
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -32,8 +38,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.tvAssistantState.text = "المساعد متوقف محلياً — أكمل إعداد وصيل أولاً"
+        enabled = getSharedPreferences("waseel_setup", MODE_PRIVATE).getBoolean("assistant_enabled", false)
+        binding.btnToggleAssistant.text = if (enabled) "إيقاف المساعد" else "تشغيل المساعد"
+        binding.tvAssistantState.text = if (enabled) "وصيل مفعّل محلياً — ميزات المكالمات بانتظار التحقق" else "المساعد متوقف محلياً"
         binding.btnToggleAssistant.setOnClickListener {
             enabled = !enabled
+            getSharedPreferences("waseel_setup", MODE_PRIVATE).edit().putBoolean("assistant_enabled", enabled).apply()
             binding.tvAssistantState.text = if (enabled) "وصيل مفعّل محلياً — ميزات المكالمات بانتظار التحقق" else "المساعد متوقف"
             binding.btnToggleAssistant.text = if (enabled) "إيقاف المساعد" else "تشغيل المساعد"
         }
@@ -41,10 +51,26 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, AssistantSettingsActivity::class.java))
         }
         binding.btnPermissions.setOnClickListener { explainAndRequestPermissions() }
+        binding.btnFeatures.setOnClickListener { startActivity(Intent(this, WaseelFeatureActivity::class.java).putExtra(WaseelFeatureActivity.EXTRA_SCREEN, "menu")) }
+        observeDashboardStats()
         binding.tvEngineStatus.text = "الصوت المحلي: يلزم فحص محرك الجهاز قبل تفعيل أي محادثة صوتية."
         if (!getSharedPreferences("waseel_setup", MODE_PRIVATE).getBoolean("permission_intro_seen", false)) {
             binding.root.post { explainAndRequestPermissions() }
         }
+    }
+
+    private fun observeDashboardStats() {
+        val dao = WaseelDatabase.get(this).callDao()
+        val now = System.currentTimeMillis()
+        val calendar = Calendar.getInstance().apply { timeInMillis = now; set(Calendar.HOUR_OF_DAY,0); set(Calendar.MINUTE,0); set(Calendar.SECOND,0); set(Calendar.MILLISECOND,0) }
+        val today = calendar.timeInMillis
+        val week = today - 6L * 24 * 60 * 60 * 1000
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        val month = calendar.timeInMillis
+        lifecycleScope.launch { dao.countBetween(today, now).collectLatest { binding.tvCallsToday.text = "مكالمات اليوم\\n$it" } }
+        lifecycleScope.launch { dao.countBetween(week, now).collectLatest { binding.tvCallsWeek.text = "هذا الأسبوع\\n$it" } }
+        lifecycleScope.launch { dao.countBetween(month, now).collectLatest { binding.tvCallsMonth.text = "هذا الشهر\\n$it" } }
+        lifecycleScope.launch { dao.totalCalls().collectLatest { binding.tvCallsTotal.text = "إجمالي المكالمات\\n$it" } }
     }
 
     private fun explainAndRequestPermissions() {
