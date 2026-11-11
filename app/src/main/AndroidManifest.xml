@@ -11,6 +11,7 @@
         android:label="وصيل | WASEEL"
         android:theme="@style/Theme.Waseel"
         android:supportsRtl="true">
+        <activity android:name=".ui.settings.AssistantSettingsActivity" android:exported="false" />
         <activity android:name=".ui.home.MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
