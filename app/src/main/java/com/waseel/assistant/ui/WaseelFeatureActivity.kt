@@ -76,16 +76,16 @@ class WaseelFeatureActivity : AppCompatActivity() {
 
     private fun showMenu() {
         header("مركز وصيل", "إدارة المكالمات والردود والخصوصية والتقارير")
-        menuButton("سجل المكالمات", "calls")
-        menuButton("الردود الجاهزة", "quick_replies")
-        menuButton("التقارير والإحصائيات", "reports")
-        menuButton("إعدادات الصوت وتجربة النطق") { startActivity(Intent(this, VoiceSettingsActivity::class.java)) }
-        menuButton("شخصية المساعد والتعليمات") { startActivity(Intent(this, AssistantSettingsActivity::class.java)) }
-        menuButton("ساعات العمل", "hours")
-        menuButton("الأرقام المسموحة والمستثناة", "numbers")
-        menuButton("الخصوصية والتسجيل", "privacy")
-        menuButton("النسخ الاحتياطي", "backup")
-        menuButton("فحص النظام والصوت", "diagnostics")
+        menuButton("☎  سجل المكالمات", "calls")
+        menuButton("✎  الردود الجاهزة", "quick_replies")
+        menuButton("▤  التقارير والإحصائيات", "reports")
+        menuButton("♫  إعدادات الصوت وتجربة النطق") { startActivity(Intent(this, VoiceSettingsActivity::class.java)) }
+        menuButton("⚙  شخصية المساعد والتعليمات") { startActivity(Intent(this, AssistantSettingsActivity::class.java)) }
+        menuButton("◷  ساعات العمل", "hours")
+        menuButton("♙  الأرقام المسموحة والمستثناة", "numbers")
+        menuButton("◇  الخصوصية والتسجيل", "privacy")
+        menuButton("⇧  النسخ الاحتياطي والاستعادة", "backup")
+        menuButton("✓  فحص النظام والصوت", "diagnostics")
     }
 
     private fun showCalls() {
