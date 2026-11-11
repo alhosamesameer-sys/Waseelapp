@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="waseel_navy">#061632</color>
+    <color name="waseel_surface">#10264B</color>
+    <color name="waseel_blue">#0866F5</color>
+    <color name="waseel_cyan">#18C9FF</color>
+    <color name="waseel_text">#F4F8FF</color>
+    <color name="waseel_muted">#AFC4E8</color>
+    <color name="waseel_green">#17D77A</color>
+</resources>
