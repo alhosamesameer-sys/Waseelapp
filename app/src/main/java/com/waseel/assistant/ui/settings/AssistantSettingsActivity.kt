@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.waseel.assistant.ui.settings.VoiceSettingsActivity
 import org.json.JSONObject
 
 class AssistantSettingsActivity : AppCompatActivity() {
@@ -32,6 +33,9 @@ class AssistantSettingsActivity : AppCompatActivity() {
         val scroll = ScrollView(this).apply { addView(root) }
         setContentView(scroll)
         addText(root, "إعدادات وصيل", 26, true)
+        val voiceButton = MaterialButton(this).apply { text = "إعدادات الصوت وتجربة النطق" }
+        root.addView(voiceButton, match())
+        voiceButton.setOnClickListener { startActivity(Intent(this, VoiceSettingsActivity::class.java)) }
         addText(root, "عدّل شخصية المساعد والردود والتعليمات. تُحفظ الإعدادات على هذا الهاتف فقط.", 14, false)
         assistantName = field(root, "اسم المساعد", "وصيل")
         intro = field(root, "تعريف المساعد بنفسه", "أنا وصيل، المساعد الشخصي لصاحب الهاتف.")
