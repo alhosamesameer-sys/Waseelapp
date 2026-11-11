@@ -53,7 +53,6 @@ class AssistantSettingsActivity : AppCompatActivity() {
         delayLabel.text = "التأخير المحدد: ${delay.progress} ثانية"
         autoAnswer = SwitchMaterial(this).apply {
             text = "السماح بالرد التلقائي (يتطلب دعم نظام الاتصال)"
-            isTextDirectionRtl = true
             isChecked = prefs.getBoolean("auto_answer", false)
         }
         root.addView(autoAnswer, match())
