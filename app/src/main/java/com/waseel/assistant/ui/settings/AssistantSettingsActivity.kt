@@ -5,6 +5,7 @@ import android.content.Intent
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.setPadding
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -97,7 +98,7 @@ class AssistantSettingsActivity : AppCompatActivity() {
                 val engine = LocalConversationEngine(AssistantConfigRepository(this).loadEffectiveConfig())
                 val result = engine.reply(question.text.toString())
                 AlertDialog.Builder(this).setTitle("رد وصيل التجريبي")
-                    .setMessage(result.response + "\\n\\nدرجة المطابقة: " + result.confidence)
+                    .setMessage(result.response + "\n\nدرجة المطابقة: " + result.confidence)
                     .setPositiveButton("حسناً", null).show()
             }.show()
     }
