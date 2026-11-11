@@ -10,6 +10,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.waseel.assistant.ui.settings.VoiceSettingsActivity
 import org.json.JSONObject
+import com.waseel.assistant.conversation.AssistantConfigRepository
+import com.waseel.assistant.conversation.LocalConversationEngine
 
 class AssistantSettingsActivity : AppCompatActivity() {
     private val prefs by lazy { getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE) }
@@ -62,6 +64,9 @@ class AssistantSettingsActivity : AppCompatActivity() {
         }
         root.addView(autoAnswer, match())
         addText(root, "تنبيه: اختيار الرد التلقائي يحفظ تفضيلك فقط. لن يستطيع التطبيق الرد على مكالمات SIM تلقائياً ما لم يسمح Android/الشركة المصنّعة بذلك. كما أن تأخير الرنين لا يضمن توفر صوت الطرفين.", 13, false)
+        val test = MaterialButton(this).apply { text = "اختبار ردود وصيل محلياً" }
+        root.addView(test, match())
+        test.setOnClickListener { testLocalReply() }
         val save = MaterialButton(this).apply { text = "حفظ الإعدادات" }
         root.addView(save, match())
         save.setOnClickListener { saveSettings() }
@@ -81,6 +86,20 @@ class AssistantSettingsActivity : AppCompatActivity() {
         unknownReply.setText(prefs.getString("unknown_reply", "أعتذر منك، ما فهمت طلبك بشكل واضح. ممكن توضحه لي بطريقة ثانية؟"))
         faq.setText(prefs.getString("faq", "من أنت؟ | أنا وصيل، المساعد الشخصي لصاحب الهاتف.\nوين صاحب الهاتف؟ | صاحب الهاتف غير متاح حالياً، تحب تترك له رسالة؟"))
         instructions.setText(prefs.getString("instructions", "تحدث باللهجة السعودية البيضاء.\nلا تخترع معلومات ولا تؤكد موعداً نيابة عن صاحب الهاتف.\nاسأل سؤالاً واحداً في كل مرة."))
+    }
+
+    private fun testLocalReply() {
+        val question = EditText(this).apply { hint = "اكتب سؤالاً لاختبار الرد"; setTextColor(android.graphics.Color.WHITE) }
+        AlertDialog.Builder(this).setTitle("اختبار المحرك المحلي").setView(question)
+            .setNegativeButton("إلغاء", null)
+            .setPositiveButton("اختبار") { _, _ ->
+                saveSettings()
+                val engine = LocalConversationEngine(AssistantConfigRepository(this).loadEffectiveConfig())
+                val result = engine.reply(question.text.toString())
+                AlertDialog.Builder(this).setTitle("رد وصيل التجريبي")
+                    .setMessage(result.response + "\\n\\nدرجة المطابقة: " + result.confidence)
+                    .setPositiveButton("حسناً", null).show()
+            }.show()
     }
 
     private fun saveSettings() {
