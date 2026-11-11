@@ -1,6 +1,7 @@
 package com.waseel.assistant.ui.settings
 
-import android.os.Bundle\nimport android.content.Intent
+import android.os.Bundle
+import android.content.Intent
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
