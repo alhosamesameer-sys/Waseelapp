@@ -134,21 +134,82 @@ class WaseelFeatureActivity : AppCompatActivity() {
     }
 
     private fun showReports() {
-        header("التقارير والإحصائيات", "الإحصائيات أدناه من سجلات وصيل المحفوظة في قاعدة البيانات، ولا تمثل سجل الهاتف إلا إذا تمت مزامنته.")
-        val today = dayStart(System.currentTimeMillis())
-        val week = today - 6L * 24 * 60 * 60 * 1000
-        val month = monthStart(System.currentTimeMillis())
-        val cards = listOf(
-            "مكالمات اليوم" to db.callDao().countBetween(today, System.currentTimeMillis()),
-            "مكالمات هذا الأسبوع" to db.callDao().countBetween(week, System.currentTimeMillis()),
-            "مكالمات هذا الشهر" to db.callDao().countBetween(month, System.currentTimeMillis()),
-            "إجمالي المكالمات المسجلة في وصيل" to db.callDao().totalCalls(),
-            "مكالمات تعامل معها المساعد" to db.callDao().assistantHandledCalls()
-        )
-        cards.forEach { (label, flow) ->
-            val value = panel("$label\n—")
-            lifecycleScope.launch { flow.collectLatest { count -> value.text = "$label\n$count" } }
+        header("التقارير والإحصائيات", "الأرقام مأخوذة من سجل المكالمات في الهاتف، وليست دليلاً على أن وصيل رد على المكالمة.")
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            panel("لإظهار التقارير، امنح وصيل صلاحية سجل المكالمات من زر مراجعة الصلاحيات في الشاشة الرئيسية.")
+            return
         }
+        val now = System.currentTimeMillis()
+        val today = dayStart(now)
+        fun count(from: Long?, type: Int? = null): Int = try {
+            val clauses = mutableListOf<String>()
+            val args = mutableListOf<String>()
+            if (from != null) { clauses.add("${CallLog.Calls.DATE} >= ?"); args.add(from.toString()) }
+            if (type != null) { clauses.add("${CallLog.Calls.TYPE} = ?"); args.add(type.toString()) }
+            contentResolver.query(
+                CallLog.Calls.CONTENT_URI, arrayOf(CallLog.Calls._ID),
+                clauses.takeIf { it.isNotEmpty() }?.joinToString(" AND "),
+                args.takeIf { it.isNotEmpty() }?.toTypedArray(), null
+            )?.use { it.count } ?: 0
+        } catch (_: SecurityException) { -1 }
+        val week = today - 6L * 24 * 60 * 60 * 1000
+        val month = monthStart(now)
+        panel("مكالمات اليوم: ${count(today)}")
+        panel("مكالمات هذا الأسبوع: ${count(week)}")
+        panel("مكالمات هذا الشهر: ${count(month)}")
+        panel("إجمالي سجل الهاتف: ${count(null)}")
+        panel("المكالمات الواردة المجاب عليها اليوم: ${count(today, CallLog.Calls.INCOMING_TYPE)}")
+        panel("المكالمات الفائتة اليوم: ${count(today, CallLog.Calls.MISSED_TYPE)}")
+        addText("نشاط آخر 7 أيام", 18, true)
+
+        val dayCounts = (6 downTo 0).map { offset ->
+            val from = today - offset * 24L * 60 * 60 * 1000
+            val until = from + 24L * 60 * 60 * 1000
+            val n = try {
+                contentResolver.query(
+                    CallLog.Calls.CONTENT_URI, arrayOf(CallLog.Calls._ID),
+                    "${CallLog.Calls.DATE} >= ? AND ${CallLog.Calls.DATE} < ?",
+                    arrayOf(from.toString(), until.toString()), null
+                )?.use { it.count } ?: 0
+            } catch (_: SecurityException) { 0 }
+            val label = SimpleDateFormat("EE", Locale("ar")).format(Date(from))
+            label to n
+        }
+        val max = dayCounts.maxOfOrNull { it.second }?.coerceAtLeast(1) ?: 1
+        val chart = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.BOTTOM
+            setPadding(dp(8))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(0xFF10264B.toInt()); cornerRadius = dp(18).toFloat()
+                setStroke(dp(1), 0xFF29466D.toInt())
+            }
+        }
+        dayCounts.forEach { (label, value) ->
+            val column = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
+            }
+            val number = TextView(this).apply {
+                text = value.toString(); textSize = 11f; gravity = android.view.Gravity.CENTER
+                setTextColor(0xFFD7E3F5.toInt())
+            }
+            val bar = View(this).apply {
+                setBackgroundColor(0xFF4B83C8.toInt())
+                minimumHeight = dp(4)
+            }
+            column.addView(number, LinearLayout.LayoutParams(-1, dp(22)))
+            column.addView(View(this), LinearLayout.LayoutParams(1, dp(4)))
+            column.addView(bar, LinearLayout.LayoutParams(dp(18), (dp(76) * value / max).coerceAtLeast(dp(4))))
+            val day = TextView(this).apply {
+                text = label; textSize = 10f; gravity = android.view.Gravity.CENTER
+                setTextColor(0xFFCFDDF3.toInt())
+            }
+            column.addView(day, LinearLayout.LayoutParams(-1, dp(24)))
+            chart.addView(column, LinearLayout.LayoutParams(0, dp(132), 1f))
+        }
+        root.addView(chart, match())
+        panel("عدد المكالمات التي رد عليها وصيل: غير متاح حتى يثبت مسار رد تلقائي مدعوم على الهاتف. لا نحسب المكالمات العادية على أنها ردود من المساعد.")
     }
 
     private fun showQuickReplies() {
