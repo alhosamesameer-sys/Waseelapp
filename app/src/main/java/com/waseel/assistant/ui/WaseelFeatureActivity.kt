@@ -236,7 +236,7 @@ class WaseelFeatureActivity : AppCompatActivity() {
     private fun showNumberLists() {
         header("إدارة الأرقام", "أضف أرقاماً مسموحة أو مستثناة. هذه القوائم تحفظ محلياً ولا تحجب المكالمات من تلقاء نفسها.")
         showNumberEditor("الأرقام المسموحة", "allowed_numbers")
-        showNumberEditor("الأرقام المستثناة", "excluded_numbers", "selected_voice_name", "voice_presentation", "voice_pitch", "speech_rate_step")
+        showNumberEditor("الأرقام المستثناة", "excluded_numbers")
     }
 
     private fun showNumberEditor(title: String, key: String) {
@@ -291,7 +291,7 @@ class WaseelFeatureActivity : AppCompatActivity() {
     }
 
     private fun copyJsonPreferences(source: JSONObject, target: android.content.SharedPreferences.Editor) {
-        val allowed = setOf("assistant_name", "intro", "greeting", "unknown_reply", "faq", "instructions", "answer_delay", "auto_answer", "custom_config_json", "transcript", "audio", "hours_enabled", "hours_start", "hours_end", "allowed_numbers", "excluded_numbers")
+        val allowed = setOf("assistant_name", "intro", "greeting", "unknown_reply", "faq", "instructions", "answer_delay", "auto_answer", "custom_config_json", "transcript", "audio", "hours_enabled", "hours_start", "hours_end", "allowed_numbers", "excluded_numbers", "selected_voice_name", "voice_presentation", "voice_pitch", "speech_rate_step")
         val keys = source.keys()
         while (keys.hasNext()) {
             val key = keys.next()
