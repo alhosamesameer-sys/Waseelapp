@@ -44,7 +44,7 @@ class OfflineTextToSpeech(context: Context, private val onReady: (Boolean, Strin
         return engine?.setVoice(voice) == TextToSpeech.SUCCESS
     }
 
-    fun speak(text: String, rate: Float = 1.0f): Boolean {
+    fun setPitch(pitch: Float) { engine?.setPitch(pitch.coerceIn(0.8f, 1.2f)) }\n\n    fun speak(text: String, rate: Float = 1.0f): Boolean {
         val tts = engine ?: return false
         if (text.isBlank() || localArabicVoices.isEmpty()) return false
         tts.setSpeechRate(rate.coerceIn(0.75f, 1.25f))
