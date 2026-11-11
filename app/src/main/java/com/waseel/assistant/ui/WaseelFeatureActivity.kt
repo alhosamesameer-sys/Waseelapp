@@ -250,7 +250,7 @@ class WaseelFeatureActivity : AppCompatActivity() {
         val telephony = getSystemService(android.telecom.TelecomManager::class.java)
         panel("إصدار Android: ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})")
         panel("تطبيق الاتصال الافتراضي: ${telephony?.defaultDialerPackage ?: "غير معروف"}")
-        panel("محرك النطق: ${android.speech.tts.TextToSpeech.Engine.DEFAULT_ENGINE}")
+        panel("محرك النطق: يتم التحقق من الأصوات العربية المحلية عند فتح إعدادات الصوت.")
         panel("صوت المكالمة ثنائي الاتجاه: غير مثبت عبر واجهات Android العامة. لا يتم تشغيل محاكاة أو تسجيل وهمي.")
         panel("التعرف الصوتي دون إنترنت: يعتمد على وجود محرك محلي يدعم العربية في هذا الهاتف.")
     }
