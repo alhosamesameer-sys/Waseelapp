@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import com.waseel.assistant.databinding.ActivityMainBinding
 import com.waseel.assistant.ui.settings.AssistantSettingsActivity
 import com.waseel.assistant.ui.WaseelFeatureActivity
-import com.waseel.assistant.database.WaseelDatabase
+import android.provider.CallLog
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -60,18 +60,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeDashboardStats() {
-        val dao = WaseelDatabase.get(this).callDao()
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            binding.tvCallsToday.text = "مكالمات اليوم\\nغير متاح"
+            binding.tvCallsWeek.text = "هذا الأسبوع\\nغير متاح"
+            binding.tvCallsMonth.text = "هذا الشهر\\nغير متاح"
+            binding.tvCallsTotal.text = "إجمالي المكالمات\\nغير متاح"
+            return
+        }
         val now = System.currentTimeMillis()
         val calendar = Calendar.getInstance().apply { timeInMillis = now; set(Calendar.HOUR_OF_DAY,0); set(Calendar.MINUTE,0); set(Calendar.SECOND,0); set(Calendar.MILLISECOND,0) }
         val today = calendar.timeInMillis
         val week = today - 6L * 24 * 60 * 60 * 1000
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         val month = calendar.timeInMillis
-        lifecycleScope.launch { dao.countBetween(today, now).collectLatest { binding.tvCallsToday.text = "مكالمات اليوم\\n$it" } }
-        lifecycleScope.launch { dao.countBetween(week, now).collectLatest { binding.tvCallsWeek.text = "هذا الأسبوع\\n$it" } }
-        lifecycleScope.launch { dao.countBetween(month, now).collectLatest { binding.tvCallsMonth.text = "هذا الشهر\\n$it" } }
-        lifecycleScope.launch { dao.totalCalls().collectLatest { binding.tvCallsTotal.text = "إجمالي المكالمات\\n$it" } }
+        fun countCalls(from: Long?): Int = try {
+            val selection = if (from == null) null else "${CallLog.Calls.DATE} >= ?"
+            val args = if (from == null) null else arrayOf(from.toString())
+            contentResolver.query(CallLog.Calls.CONTENT_URI, arrayOf(CallLog.Calls._ID), selection, args, null)?.use { it.count } ?: 0
+        } catch (_: SecurityException) { -1 }
+        binding.tvCallsToday.text = "مكالمات اليوم\\n${countCalls(today).let { if (it < 0) "غير متاح" else it }}"
+        binding.tvCallsWeek.text = "هذا الأسبوع\\n${countCalls(week).let { if (it < 0) "غير متاح" else it }}"
+        binding.tvCallsMonth.text = "هذا الشهر\\n${countCalls(month).let { if (it < 0) "غير متاح" else it }}"
+        binding.tvCallsTotal.text = "إجمالي المكالمات\\n${countCalls(null).let { if (it < 0) "غير متاح" else it }}"
     }
+
+    override fun onResume() { super.onResume(); if (::binding.isInitialized) observeDashboardStats() }
 
     private fun explainAndRequestPermissions() {
         val requested = arrayOf(
