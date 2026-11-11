@@ -20,7 +20,7 @@ class AssistantConfigRepository(private val context: Context) {
         config.optJSONObject("greetings")?.put("default", prefs.getString("greeting", config.optJSONObject("greetings")?.optString("default")))
         config.optJSONObject("fallbacks")?.put("unknown", prefs.getString("unknown_reply", config.optJSONObject("fallbacks")?.optString("unknown")))
         val modes = config.optJSONObject("operating_modes")
-        modes?.put("answer_delay_seconds", prefs.getInt("answer_delay", modes.optInt("answer_delay_seconds", 5)))
+        modes?.put("answer_delay_seconds", prefs.getInt("answer_delay", modes?.optInt("answer_delay_seconds", 5) ?: 5))
         modes?.put("auto_answer_default", prefs.getBoolean("auto_answer", false))
 
         val intents = config.optJSONObject("intents") ?: JSONObject().also { config.put("intents", it) }
