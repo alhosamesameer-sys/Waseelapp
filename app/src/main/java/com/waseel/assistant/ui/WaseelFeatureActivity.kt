@@ -115,7 +115,16 @@ class WaseelFeatureActivity : AppCompatActivity() {
                         CallLog.Calls.REJECTED_TYPE -> "مرفوضة"
                         else -> "مكالمة"
                     }
-                    panel("$name\n$number\n$type • ${formatDate(date)} • ${duration} ثانية")
+                    val itemView = panel("$name\n$number\n$type • ${formatDate(date)} • ${duration} ثانية")
+                    itemView.setOnClickListener {
+                        startActivity(Intent(this, WaseelFeatureActivity::class.java)
+                            .putExtra(EXTRA_SCREEN, "call_detail")
+                            .putExtra("caller_name", name)
+                            .putExtra("caller_number", number)
+                            .putExtra("call_type", type)
+                            .putExtra("call_date", date)
+                            .putExtra("call_duration", duration))
+                    }
                     shown++
                 }
             }
@@ -308,8 +317,13 @@ class WaseelFeatureActivity : AppCompatActivity() {
     }
 
     private fun showCallDetail() {
-        header("تفاصيل المكالمة", "لا توجد تفاصيل فعلية ما لم تتوفر مكالمة مسجلة في قاعدة بيانات وصيل.")
-        panel("يمكن فتح سجل الهاتف لعرض تفاصيل المكالمات التي يسمح النظام بعرضها.")
+        header("تفاصيل المكالمة", "تفاصيل مأخوذة من سجل الهاتف، وليست محادثة مسجلة من وصيل.")
+        panel("الاسم: ${intent.getStringExtra("caller_name") ?: "غير معروف"}")
+        panel("الرقم: ${intent.getStringExtra("caller_number") ?: "—"}")
+        panel("النوع: ${intent.getStringExtra("call_type") ?: "—"}")
+        panel("التاريخ: ${intent.getLongExtra("call_date", 0L).takeIf { it > 0 }?.let { formatDate(it) } ?: "—"}")
+        panel("المدة: ${intent.getLongExtra("call_duration", 0L)} ثانية")
+        panel("ملخص وصيل والتفريغ الصوتي: غير متاحين لهذه المكالمة ما لم تكن قد عولجت عبر مسار صوت مدعوم وموافقات صحيحة.")
         menuButton("فتح سجل المكالمات", "calls")
     }
 
