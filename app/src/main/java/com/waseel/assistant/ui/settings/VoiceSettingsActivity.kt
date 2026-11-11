@@ -85,10 +85,14 @@ class VoiceSettingsActivity : AppCompatActivity() {
             setBackgroundColor(0xFF10264B.toInt())
         }
         root.addView(textInput, match())
-        val listVoices = MaterialButton(this).apply { text = "عرض الأصوات العربية المثبتة" }\n        root.addView(listVoices, match())\n        listVoices.setOnClickListener { showAvailableVoices() }\n        val preview = MaterialButton(this).apply { text = "استمع إلى الصوت" }
+        val listVoices = MaterialButton(this).apply { text = "عرض الأصوات العربية المثبتة" }
+        root.addView(listVoices, match())
+        listVoices.setOnClickListener { showAvailableVoices() }
+        val preview = MaterialButton(this).apply { text = "استمع إلى الصوت" }
         root.addView(preview, match())
         preview.setOnClickListener {
-            speech.setPitch(prefs.getFloat("voice_pitch", 1.0f))\n            val ok = speech.speak(textInput.text.toString(), speechRate())
+            speech.setPitch(prefs.getFloat("voice_pitch", 1.0f))
+            val ok = speech.speak(textInput.text.toString(), speechRate())
             if (!ok) status.text = "الصوت المحلي غير جاهز أو لا توجد عينة نطق متاحة."
         }
 
