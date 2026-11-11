@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+ android:layout_width="match_parent" android:layout_height="match_parent"
+ android:background="@color/waseel_navy" android:fillViewport="true">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+  android:orientation="vertical" android:padding="20dp" android:layoutDirection="rtl">
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="اختبار النظام" android:textColor="@color/waseel_text" android:textSize="23sp" android:textStyle="bold"/>
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:text="فحص توافق خدمات الصوت والاتصالات والصلاحيات دون إرسال بيانات خارج الجهاز." android:textColor="@color/waseel_cyan" android:layout_marginTop="10dp"/>
+ </LinearLayout>
+</ScrollView>
