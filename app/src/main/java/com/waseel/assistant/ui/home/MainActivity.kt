@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     ) { results ->
         val granted = results.filterValues { it }.keys
         val missing = results.filterValues { !it }.keys
+        observeDashboardStats()
         binding.tvEngineStatus.text = if (missing.isEmpty()) {
             "تم منح الصلاحيات المطلوبة التي وافقت عليها. سيظل فحص صوت المكالمة منفصلاً عن صلاحيات الميكروفون."
         } else {
