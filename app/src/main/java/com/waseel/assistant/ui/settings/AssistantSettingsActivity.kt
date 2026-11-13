@@ -32,7 +32,7 @@ class AssistantSettingsActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             layoutDirection = android.view.View.LAYOUT_DIRECTION_RTL
             setPadding(20)
-            setBackgroundColor(android.graphics.Color.rgb(7, 21, 48))
+            setBackgroundColor(0xFF142238.toInt())
         }
         val scroll = ScrollView(this).apply { addView(root) }
         setContentView(scroll)
@@ -90,7 +90,7 @@ class AssistantSettingsActivity : AppCompatActivity() {
     }
 
     private fun testLocalReply() {
-        val question = EditText(this).apply { hint = "اكتب سؤالاً لاختبار الرد"; setTextColor(android.graphics.Color.WHITE) }
+        val question = EditText(this).apply { hint = "اكتب سؤالاً لاختبار الرد"; setTextColor(0xFFE8EDF3.toInt()) }
         AlertDialog.Builder(this).setTitle("اختبار المحرك المحلي").setView(question)
             .setNegativeButton("إلغاء", null)
             .setPositiveButton("اختبار") { _, _ ->
@@ -136,11 +136,11 @@ class AssistantSettingsActivity : AppCompatActivity() {
             setText(default)
             textSize = 15f
             setTextColor(android.graphics.Color.WHITE)
-            setHintTextColor(android.graphics.Color.LTGRAY)
+            setHintTextColor(0xFFAEBBCC.toInt())
             setPadding(14)
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(0xFF10264B.toInt())
-                setStroke((resources.displayMetrics.density).toInt().coerceAtLeast(1), 0xFF29466D.toInt())
+                setColor(0xFF202F45.toInt())
+                setStroke((resources.displayMetrics.density).toInt().coerceAtLeast(1), 0xFF394B62.toInt())
                 cornerRadius = 16f * resources.displayMetrics.density
             }
             if (multiline) { minLines = 3; gravity = android.view.Gravity.TOP; inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE }
