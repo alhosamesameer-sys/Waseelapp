@@ -44,7 +44,8 @@ class WaseelInCallService : InCallService() {
             if (excluded.any { number.endsWith(it) || it.endsWith(number) }) return
             val allowed = featurePrefs.getString("allowed_numbers", "").orEmpty()
                 .split(Regex("[,\\n;]")).map { it.trim() }.filter { it.isNotEmpty() }
-            if (allowed.isNotEmpty() && allowed.none { number.endsWith(it) || it.endsWith(number) }) return
+            // Trusted numbers must ring through; unknown numbers remain eligible for auto-answer.
+            if (allowed.any { number.endsWith(it) || it.endsWith(number) }) return
         }
         val delaySeconds = assistantPrefs.getInt("answer_delay", 5).coerceIn(0, 30)
         val task = Runnable {
