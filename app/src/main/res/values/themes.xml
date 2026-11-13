@@ -2,10 +2,14 @@
 <resources>
     <style name="Theme.Waseel" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/waseel_blue</item>
+        <item name="colorOnPrimary">@color/waseel_text</item>
         <item name="colorSecondary">@color/waseel_cyan</item>
+        <item name="colorOnSecondary">@color/waseel_navy</item>
+        <item name="android:colorAccent">@color/waseel_blue</item>
         <item name="android:statusBarColor">@color/waseel_navy</item>
         <item name="android:navigationBarColor">@color/waseel_navy</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@color/waseel_navy</item>
         <item name="android:fontFamily">sans</item>
     </style>
 </resources>
