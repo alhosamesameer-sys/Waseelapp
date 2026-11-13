@@ -347,7 +347,9 @@ class WaseelFeatureActivity : AppCompatActivity() {
         val featurePrefs = prefs.edit().clear()\n        val voicePrefs = getSharedPreferences("waseel_voice_settings", MODE_PRIVATE).edit().clear()
         copyJsonPreferences(assistant, assistantPrefs)
         copyJsonPreferences(feature, featurePrefs)
+        copyJsonPreferences(voice, voicePrefs)
         assistantPrefs.apply()
+        voicePrefs.apply()
         featurePrefs.putString("quick_replies", replies.toString()).apply()
     }
 
