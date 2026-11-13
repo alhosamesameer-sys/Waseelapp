@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="waseel_navy">#061632</color>
-    <color name="waseel_surface">#10264B</color>
-    <color name="waseel_blue">#2468C9</color>
-    <color name="waseel_cyan">#8EB7E7</color>
-    <color name="waseel_text">#F4F8FF</color>
-    <color name="waseel_muted">#AFC4E8</color>
-    <color name="waseel_green">#43A982</color>
+    <!-- Calm navy palette: restrained blue accents, soft surfaces, high readable contrast. -->
+    <color name="waseel_navy">#142238</color>
+    <color name="waseel_surface">#202F45</color>
+    <color name="waseel_blue">#5279A8</color>
+    <color name="waseel_cyan">#9CB3C9</color>
+    <color name="waseel_text">#E8EDF3</color>
+    <color name="waseel_muted">#AEBBCC</color>
+    <color name="waseel_green">#6F9B87</color>
 </resources>
