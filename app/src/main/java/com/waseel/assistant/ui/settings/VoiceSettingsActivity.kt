@@ -1,6 +1,8 @@
 package com.waseel.assistant.ui.settings
 
 import android.os.Bundle
+import android.media.MediaPlayer
+import java.io.File
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.*
@@ -22,6 +24,7 @@ class VoiceSettingsActivity : AppCompatActivity() {
     private lateinit var rateLabel: TextView
     private lateinit var rateSlider: SeekBar
     private var selectedVoiceName: String? = null
+    private var samplePlayer: MediaPlayer? = null
 
     private val samplePicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@registerForActivityResult
@@ -29,7 +32,8 @@ class VoiceSettingsActivity : AppCompatActivity() {
             val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
                 ?: throw IllegalStateException("تعذر قراءة الملف.")
             sampleStore.save(bytes)
-            sampleStatus.text = "تم حفظ العينة مشفرة داخل الهاتف. لم يتم إرسالها لأي جهة."
+            sampleStatus.text = "تم حفظ العينة الأصلية مشفرة داخل الهاتف. لم تُستخدم لاستنساخ الصوت؛ محرك XTTS غير مدمج بعد."
+
         } catch (error: Exception) {
             sampleStatus.text = error.message ?: "تعذر حفظ العينة الصوتية."
         }
@@ -88,12 +92,13 @@ class VoiceSettingsActivity : AppCompatActivity() {
         val listVoices = MaterialButton(this).apply { text = "عرض الأصوات العربية المثبتة" }
         root.addView(listVoices, match())
         listVoices.setOnClickListener { showAvailableVoices() }
-        val preview = MaterialButton(this).apply { text = "استمع إلى الصوت" }
+        val preview = MaterialButton(this).apply { text = "استمع إلى الصوت المحلي الحالي (ليس مستنسخاً)" }
         root.addView(preview, match())
         preview.setOnClickListener {
             speech.setPitch(prefs.getFloat("voice_pitch", 1.0f))
             val ok = speech.speak(textInput.text.toString(), speechRate())
             if (!ok) status.text = "الصوت المحلي غير جاهز أو لا توجد عينة نطق متاحة."
+            else status.text = "هذا صوت Android المحلي المختار، ولا يستخدم عينة WAV المرفوعة."
         }
 
         addText(root, "إضافة عينة صوتية", 17, true)
@@ -102,14 +107,33 @@ class VoiceSettingsActivity : AppCompatActivity() {
         val addSample = MaterialButton(this).apply { text = "اختيار عينة صوتية من الجهاز" }
         root.addView(addSample, match())
         addSample.setOnClickListener { samplePicker.launch(arrayOf("audio/*")) }
+        val playSample = MaterialButton(this).apply { text = "استمع إلى ملف العينة الأصلي" }
+        root.addView(playSample, match())
+        playSample.isEnabled = sampleStore.hasSample()
+        playSample.setOnClickListener {
+            runCatching {
+                samplePlayer?.release()
+                val decrypted = sampleStore.copyDecryptedToCache()
+                samplePlayer = MediaPlayer().apply {
+                    setDataSource(decrypted.absolutePath)
+                    setOnCompletionListener { it.release(); samplePlayer = null; decrypted.delete() }
+                    setOnErrorListener { player, _, _ -> player.release(); samplePlayer = null; decrypted.delete(); sampleStatus.text = "تعذر تشغيل ملف العينة؛ تحقق من أن الملف صوتي صالح."; true }
+                    prepare()
+                    start()
+                }
+                sampleStatus.text = "يتم الآن تشغيل التسجيل الأصلي كما رفعته، وليس صوتاً مستنسخاً."
+            }.onFailure { sampleStatus.text = it.message ?: "تعذر تشغيل العينة." }
+        }
         val deleteSample = MaterialButton(this).apply { text = "حذف العينة المحفوظة" }
         root.addView(deleteSample, match())
         deleteSample.setOnClickListener {
+            samplePlayer?.release(); samplePlayer = null
             sampleStore.delete()
+            playSample.isEnabled = false
             sampleStatus.text = "تم حذف العينة الصوتية المحلية."
         }
         addText(root, "حالة استنساخ الصوت", 17, true)
-        panel(root, "XTTS v2 يدعم العربية واستنساخ الصوت، لكن تشغيله محلياً على هاتف Android يحتاج تهيئة نموذج ووقت تشغيل متوافقين. لم يتم تفعيل الاستنساخ حتى ينجح اختبار حقيقي دون إنترنت.")
+        panel(root, "حالة الاستنساخ: غير متاح حالياً. زر تشغيل العينة يشغّل التسجيل الأصلي فقط. لن يتغير صوت المساعد إلى صوت العينة حتى يدمج XTTS v2 ويجتاز اختبار توليد فعلي دون إنترنت.")
         speech = OfflineTextToSpeech(this) { ready, message ->
             runOnUiThread {
                 status.text = message
@@ -172,5 +196,10 @@ class VoiceSettingsActivity : AppCompatActivity() {
     }
     private fun match() = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(8) }
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
-    override fun onDestroy() { if (::speech.isInitialized) speech.shutdown(); super.onDestroy() }
+    override fun onDestroy() {
+        samplePlayer?.release()
+        samplePlayer = null
+        if (::speech.isInitialized) speech.shutdown()
+        super.onDestroy()
+    }
 }
