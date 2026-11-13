@@ -33,22 +33,23 @@ class WaseelInCallService : InCallService() {
 
     private fun scheduleAnswerIfConfigured(call: Call) {
         if (pending.containsKey(call)) return
-        val prefs = getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE)
-        if (!prefs.getBoolean("auto_answer", false)) return
-        if (!withinWorkingHours(prefs)) return
+        val assistantPrefs = getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE)
+        val featurePrefs = getSharedPreferences("waseel_feature_data", MODE_PRIVATE)
+        if (!assistantPrefs.getBoolean("auto_answer", false)) return
+        if (!withinWorkingHours(featurePrefs)) return
         val number = call.details?.handle?.schemeSpecificPart.orEmpty()
         if (number.isNotBlank()) {
-            val excluded = prefs.getString("excluded_numbers", "").orEmpty()
+            val excluded = featurePrefs.getString("excluded_numbers", "").orEmpty()
                 .split(Regex("[,\\n;]")).map { it.trim() }.filter { it.isNotEmpty() }
             if (excluded.any { number.endsWith(it) || it.endsWith(number) }) return
-            val allowed = prefs.getString("allowed_numbers", "").orEmpty()
+            val allowed = featurePrefs.getString("allowed_numbers", "").orEmpty()
                 .split(Regex("[,\\n;]")).map { it.trim() }.filter { it.isNotEmpty() }
             if (allowed.isNotEmpty() && allowed.none { number.endsWith(it) || it.endsWith(number) }) return
         }
-        val delaySeconds = prefs.getInt("answer_delay", 5).coerceIn(0, 30)
+        val delaySeconds = assistantPrefs.getInt("answer_delay", 5).coerceIn(0, 30)
         val task = Runnable {
             pending.remove(call)
-            if (call.state == Call.STATE_RINGING && prefs.getBoolean("auto_answer", false)) {
+            if (call.state == Call.STATE_RINGING && assistantPrefs.getBoolean("auto_answer", false)) {
                 try { call.answer(VideoProfile.STATE_AUDIO_ONLY) } catch (_: SecurityException) { }
             }
         }
