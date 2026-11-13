@@ -46,7 +46,7 @@ class VoiceSettingsActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             layoutDirection = android.view.View.LAYOUT_DIRECTION_RTL
             setPadding(20)
-            setBackgroundColor(0xFF061632.toInt())
+            setBackgroundColor(0xFF101B2B.toInt())
         }
         val scroll = ScrollView(this).apply { addView(root) }
         setContentView(scroll)
@@ -84,9 +84,9 @@ class VoiceSettingsActivity : AppCompatActivity() {
             gravity = Gravity.TOP
             textSize = 16f
             setTextColor(0xFFFFFFFF.toInt())
-            setHintTextColor(0xFFB5C6DF.toInt())
+            setHintTextColor(0xFF9EADBE.toInt())
             setPadding(14)
-            setBackgroundColor(0xFF10264B.toInt())
+            setBackgroundColor(0xFF1B2A3D.toInt())
         }
         root.addView(textInput, match())
         val listVoices = MaterialButton(this).apply { text = "عرض الأصوات العربية المثبتة" }
@@ -179,7 +179,7 @@ class VoiceSettingsActivity : AppCompatActivity() {
     private fun updateRateLabel() { rateLabel.text = "سرعة النطق: ${String.format("%.2f", speechRate())}x" }
     private fun addText(parent: LinearLayout, value: String, size: Int, bold: Boolean): TextView {
         val view = TextView(this).apply {
-            text = value; textSize = size.toFloat(); setTextColor(0xFFF4F8FF.toInt())
+            text = value; textSize = size.toFloat(); setTextColor(0xFFE8EDF3.toInt())
             if (bold) setTypeface(null, android.graphics.Typeface.BOLD)
             setPadding(0, 16, 0, 8)
         }
@@ -188,8 +188,8 @@ class VoiceSettingsActivity : AppCompatActivity() {
     }
     private fun panel(parent: LinearLayout, value: String): TextView {
         val view = TextView(this).apply {
-            text = value; textSize = 14f; setTextColor(0xFFCFDDF3.toInt())
-            setPadding(16); setBackgroundColor(0xFF10264B.toInt())
+            text = value; textSize = 14f; setTextColor(0xFFBBC7D5.toInt())
+            setPadding(16); setBackgroundColor(0xFF1B2A3D.toInt())
         }
         parent.addView(view, match())
         return view
