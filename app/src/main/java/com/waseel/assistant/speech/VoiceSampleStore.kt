@@ -42,5 +42,24 @@ class VoiceSampleStore(private val context: Context) {
     }
 
     fun hasSample(): Boolean = File(context.filesDir, "voice_samples/reference_audio.wsv.enc").exists()
+
+    /** Decrypts only into the app cache for local playback or a future verified XTTS runtime. */
+    fun copyDecryptedToCache(): File {
+        val source = File(context.filesDir, "voice_samples/reference_audio.wsv.enc")
+        require(source.exists()) { "لم تتم إضافة عينة صوتية." }
+        val bytes = source.readBytes()
+        require(bytes.size > 32 && bytes.copyOfRange(0, 4).contentEquals(byteArrayOf(87, 86, 83, 49))) {
+            "ملف العينة المحفوظ غير صالح."
+        }
+        val iv = bytes.copyOfRange(4, 16)
+        val encrypted = bytes.copyOfRange(16, bytes.size)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, iv))
+        val plain = cipher.doFinal(encrypted)
+        val target = File(context.cacheDir, "waseel_voice_reference_preview.wav")
+        target.writeBytes(plain)
+        return target
+    }
+
     fun delete() { File(context.filesDir, "voice_samples/reference_audio.wsv.enc").delete() }
 }
