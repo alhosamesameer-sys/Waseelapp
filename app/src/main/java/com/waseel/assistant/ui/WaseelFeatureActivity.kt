@@ -335,16 +335,19 @@ class WaseelFeatureActivity : AppCompatActivity() {
         .put("created_at", System.currentTimeMillis())
         .put("quick_replies", readReplies())
         .put("assistant_settings", JSONObject(getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE).all.mapValues { it.value }))
-        .put("feature_settings", JSONObject(prefs.all.mapValues { it.value }))\n        .put("voice_settings", JSONObject(getSharedPreferences("waseel_voice_settings", MODE_PRIVATE).all.mapValues { it.value }))
+        .put("feature_settings", JSONObject(prefs.all.mapValues { it.value }))
+        .put("voice_settings", JSONObject(getSharedPreferences("waseel_voice_settings", MODE_PRIVATE).all.mapValues { it.value }))
 
     private fun restoreBackup(payload: JSONObject) {
         require(payload.optString("format") == "waseel-local-backup") { "صيغة الملف ليست نسخة وصيل." }
         require(payload.optInt("version") == 1) { "إصدار النسخة غير مدعوم." }
         val replies = payload.optJSONArray("quick_replies") ?: JSONArray()
         val assistant = payload.optJSONObject("assistant_settings") ?: JSONObject()
-        val feature = payload.optJSONObject("feature_settings") ?: JSONObject()\n        val voice = payload.optJSONObject("voice_settings") ?: JSONObject()
+        val feature = payload.optJSONObject("feature_settings") ?: JSONObject()
+        val voice = payload.optJSONObject("voice_settings") ?: JSONObject()
         val assistantPrefs = getSharedPreferences("waseel_assistant_custom", MODE_PRIVATE).edit().clear()
-        val featurePrefs = prefs.edit().clear()\n        val voicePrefs = getSharedPreferences("waseel_voice_settings", MODE_PRIVATE).edit().clear()
+        val featurePrefs = prefs.edit().clear()
+        val voicePrefs = getSharedPreferences("waseel_voice_settings", MODE_PRIVATE).edit().clear()
         copyJsonPreferences(assistant, assistantPrefs)
         copyJsonPreferences(feature, featurePrefs)
         copyJsonPreferences(voice, voicePrefs)
